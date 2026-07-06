@@ -11,18 +11,19 @@ export interface CreateEmployeeResult {
 }
 
 const employeeService = {
-  getDepartments(): Department[] {
+  async getDepartments(): Promise<Department[]> {
     return employeeRepo.getDepartments();
   },
 
-  createEmployee(
+  async createEmployee(
     firstName: string,
     lastName: string,
     departmentName: string
-  ): CreateEmployeeResult {
+  ): Promise<CreateEmployeeResult> {
     const errors: CreateEmployeeResult["errors"] = {};
 
-    if (!employeeRepo.getDepartmentByName(departmentName)) {
+    const department = await employeeRepo.getDepartmentByName(departmentName);
+    if (!department) {
       errors.department = [`Department "${departmentName}" does not exist.`];
     }
 
@@ -34,7 +35,7 @@ const employeeService = {
       return { success: false, errors };
     }
 
-    const updatedDepartments = employeeRepo.createEmployee(
+    const updatedDepartments = await employeeRepo.createEmployee(
       firstName.trim(),
       lastName.trim(),
       departmentName

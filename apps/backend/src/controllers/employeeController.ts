@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import employeeService from "../services/employeeService";
 
 const employeeController = {
-  getDepartments(req: Request, res: Response) {
-    const departments = employeeService.getDepartments();
+  async getDepartments(req: Request, res: Response) {
+    const departments = await employeeService.getDepartments();
     res.json(departments);
   },
 
-  createEmployee(req: Request, res: Response) {
+  async createEmployee(req: Request, res: Response) {
     const { firstName, lastName, departmentName } = req.body;
 
     if (!firstName || !lastName || !departmentName) {
@@ -15,7 +15,7 @@ const employeeController = {
       return;
     }
 
-    const result = employeeService.createEmployee(
+    const result = await employeeService.createEmployee(
       firstName,
       lastName,
       departmentName

@@ -11,15 +11,15 @@ export interface CreateMemberResult {
 }
 
 const organizationService = {
-  getMembers(): Role[] {
+  async getMembers(): Promise<Role[]> {
     return organizationRepo.getMembers();
   },
 
-  createMember(
+  async createMember(
     firstName: string,
     lastName: string,
     role: string
-  ): CreateMemberResult {
+  ): Promise<CreateMemberResult> {
     const errors: CreateMemberResult["errors"] = {};
 
     if (firstName.trim().length < 3) {
@@ -30,7 +30,7 @@ const organizationService = {
       errors.role = ["Role cannot be empty."];
     }
 
-    const existingRole = organizationRepo.getRoleByName(role.trim());
+    const existingRole = await organizationRepo.getRoleByName(role.trim());
     if (existingRole) {
       errors.role = [`The role "${role}" is already occupied.`];
     }
@@ -39,7 +39,7 @@ const organizationService = {
       return { success: false, errors };
     }
 
-    const updatedMembers = organizationRepo.createMember(
+    const updatedMembers = await organizationRepo.createMember(
       firstName.trim(),
       lastName.trim(),
       role.trim()

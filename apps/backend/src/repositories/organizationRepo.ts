@@ -1,26 +1,40 @@
+import { PrismaClient } from "@prisma/client";
 import type { Role } from "../types";
-import initialData from "../data/organization.json";
 
-let members: Role[] = initialData as Role[];
+const prisma = new PrismaClient();
 
 const organizationRepo = {
-  getMembers(): Role[] {
-    return [...members];
+  async getMembers(): Promise<Role[]> {
+    const members = await prisma.role.findMany();
+    return members.map((m) => ({
+      firstName: m.firstName,
+      lastName: m.lastName,
+      role: m.role,
+    }));
   },
 
-  getRoleByName(role: string): Role | undefined {
-    return members.find(
-      (m) => m.role.toLowerCase() === role.trim().toLowerCase()
-    );
+  async getRoleByName(role: string): Promise<Role | undefined> {
+    const member = await prisma.role.findFirst({
+      where: {
+        role: { equals: role, mode: "insensitive" },
+      },
+    });
+    if (!member) return undefined;
+    return {
+      firstName: member.firstName,
+      lastName: member.lastName,
+      role: member.role,
+    };
   },
 
-  createMember(
+  async createMember(
     firstName: string,
     lastName: string,
     role: string
-  ): Role[] {
-    const newMember: Role = { firstName, lastName, role };
-    members = [...members, newMember];
+  ): Promise<Role[]> {
+    await prisma.role.create({
+      data: { firstName, lastName, role },
+    });
     return organizationRepo.getMembers();
   },
 };

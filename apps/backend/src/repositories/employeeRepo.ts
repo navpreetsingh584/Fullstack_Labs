@@ -1,35 +1,50 @@
-import type { Department, Employee } from "../types";
-import initialData from "../data/employees.json";
+import { PrismaClient } from "@prisma/client";
+import type { Department } from "../types";
 
-let departments: Department[] = initialData as Department[];
+const prisma = new PrismaClient();
 
 const employeeRepo = {
-  getDepartments(): Department[] {
+  async getDepartments(): Promise<Department[]> {
+    const departments = await prisma.department.findMany({
+      include: { employees: true },
+    });
     return departments.map((dept) => ({
-      ...dept,
-      employees: [...dept.employees],
+      name: dept.name,
+      employees: dept.employees.map((emp) => ({
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+      })),
     }));
   },
 
-  getDepartmentByName(name: string): Department | undefined {
-    return departments.find((dept) => dept.name === name);
+  async getDepartmentByName(name: string): Promise<Department | undefined> {
+    const dept = await prisma.department.findUnique({
+      where: { name },
+      include: { employees: true },
+    });
+    if (!dept) return undefined;
+    return {
+      name: dept.name,
+      employees: dept.employees.map((emp) => ({
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+      })),
+    };
   },
 
-  createEmployee(
+  async createEmployee(
     firstName: string,
     lastName: string,
     departmentName: string
-  ): Department[] | null {
-    const dept = departments.find((d) => d.name === departmentName);
+  ): Promise<Department[] | null> {
+    const dept = await prisma.department.findUnique({
+      where: { name: departmentName },
+    });
     if (!dept) return null;
 
-    const newEmployee: Employee = { firstName, lastName };
-
-    departments = departments.map((d) =>
-      d.name === departmentName
-        ? { ...d, employees: [...d.employees, newEmployee] }
-        : d
-    );
+    await prisma.employee.create({
+      data: { firstName, lastName, departmentId: dept.id },
+    });
 
     return employeeRepo.getDepartments();
   },
