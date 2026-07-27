@@ -7,8 +7,9 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
+  // Seed departments and employees
   for (const dept of employeesData) {
-    const department = await prisma.department.create({
+    await prisma.department.create({
       data: {
         name: dept.name,
         employees: {
@@ -19,18 +20,31 @@ async function main() {
         },
       },
     });
-    console.log(`Created department: ${department.name}`);
+    console.log(`Created department: ${dept.name}`);
   }
 
+  // Create a special department for organization members
+  const orgDept = await prisma.department.create({
+    data: { name: "Executive" },
+  });
+
+  // Seed roles — create employee for each org member then link role
   for (const member of organizationData) {
-    const role = await prisma.role.create({
+    const employee = await prisma.employee.create({
       data: {
         firstName: member.firstName,
         lastName: member.lastName,
-        role: member.role,
+        departmentId: orgDept.id,
       },
     });
-    console.log(`Created role: ${role.role}`);
+
+    await prisma.role.create({
+      data: {
+        role: member.role,
+        employeeId: employee.id,
+      },
+    });
+    console.log(`Created role: ${member.role}`);
   }
 
   console.log("Seeding complete!");

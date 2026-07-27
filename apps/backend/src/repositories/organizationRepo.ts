@@ -5,10 +5,12 @@ const prisma = new PrismaClient();
 
 const organizationRepo = {
   async getMembers(): Promise<Role[]> {
-    const members = await prisma.role.findMany();
+    const members = await prisma.role.findMany({
+      include: { employee: true },
+    });
     return members.map((m) => ({
-      firstName: m.firstName,
-      lastName: m.lastName,
+      firstName: m.employee.firstName,
+      lastName: m.employee.lastName,
       role: m.role,
     }));
   },
@@ -18,11 +20,12 @@ const organizationRepo = {
       where: {
         role: { equals: role, mode: "insensitive" },
       },
+      include: { employee: true },
     });
     if (!member) return undefined;
     return {
-      firstName: member.firstName,
-      lastName: member.lastName,
+      firstName: member.employee.firstName,
+      lastName: member.employee.lastName,
       role: member.role,
     };
   },
@@ -32,9 +35,24 @@ const organizationRepo = {
     lastName: string,
     role: string
   ): Promise<Role[]> {
-    await prisma.role.create({
-      data: { firstName, lastName, role },
+    // Find or create Executive department
+    let dept = await prisma.department.findUnique({
+      where: { name: "Executive" },
     });
+    if (!dept) {
+      dept = await prisma.department.create({
+        data: { name: "Executive" },
+      });
+    }
+
+    const employee = await prisma.employee.create({
+      data: { firstName, lastName, departmentId: dept.id },
+    });
+
+    await prisma.role.create({
+      data: { role, employeeId: employee.id },
+    });
+
     return organizationRepo.getMembers();
   },
 };
