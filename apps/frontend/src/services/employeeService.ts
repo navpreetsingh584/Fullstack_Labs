@@ -18,7 +18,8 @@ const employeeService = {
   async createEmployee(
     firstName: string,
     lastName: string,
-    departmentName: string
+    departmentName: string,
+    token: string
   ): Promise<CreateEmployeeResult> {
     const errors: CreateEmployeeResult["errors"] = {};
 
@@ -33,13 +34,14 @@ const employeeService = {
     const updatedDepartments = await employeeRepo.createEmployee(
       firstName.trim(),
       lastName.trim(),
-      departmentName
+      departmentName,
+      token
     );
 
     if (!updatedDepartments) {
       return {
         success: false,
-        errors: { department: ["Failed to add employee to department."] },
+        errors: { department: ["Failed to add employee."] },
       };
     }
 

@@ -11,11 +11,15 @@ const organizationRepo = {
   async createMember(
     firstName: string,
     lastName: string,
-    role: string
+    role: string,
+    token: string
   ): Promise<Role[] | null> {
     const response = await fetch(`${BASE_URL}/organization`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify({ firstName, lastName, role }),
     });
 

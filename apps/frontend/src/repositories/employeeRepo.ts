@@ -11,11 +11,15 @@ const employeeRepo = {
   async createEmployee(
     firstName: string,
     lastName: string,
-    departmentName: string
+    departmentName: string,
+    token: string
   ): Promise<Department[] | null> {
     const response = await fetch(`${BASE_URL}/employees`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify({ firstName, lastName, departmentName }),
     });
 

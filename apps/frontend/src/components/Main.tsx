@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import type { Department } from "../interfaces/Employee";
 import employeeService from "../services/employeeService";
 import AddEmployeeForm from "./AddEmployeeForm";
 
 function Main() {
+  const { isSignedIn, getToken } = useAuth();
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
 
   useEffect(() => {
@@ -15,10 +17,12 @@ function Main() {
     lastName: string,
     departmentName: string
   ) {
+    const token = await getToken();
     const result = await employeeService.createEmployee(
       firstName,
       lastName,
-      departmentName
+      departmentName,
+      token ?? ""
     );
 
     if (result.success && result.departments) {
@@ -42,10 +46,16 @@ function Main() {
         </section>
       ))}
 
-      <AddEmployeeForm
-        departments={departmentList}
-        onAddEmployee={handleAddEmployee}
-      />
+      {isSignedIn ? (
+        <AddEmployeeForm
+          departments={departmentList}
+          onAddEmployee={handleAddEmployee}
+        />
+      ) : (
+        <div>
+          <p>Please <a href="/sign-in">log in</a> to add employees.</p>
+        </div>
+      )}
     </main>
   );
 }

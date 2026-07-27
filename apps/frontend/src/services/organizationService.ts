@@ -18,7 +18,8 @@ const organizationService = {
   async createMember(
     firstName: string,
     lastName: string,
-    role: string
+    role: string,
+    token: string
   ): Promise<CreateMemberResult> {
     const errors: CreateMemberResult["errors"] = {};
 
@@ -37,7 +38,8 @@ const organizationService = {
     const updatedMembers = await organizationRepo.createMember(
       firstName.trim(),
       lastName.trim(),
-      role.trim()
+      role.trim(),
+      token
     );
 
     if (!updatedMembers) {

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import type { Role } from "../interfaces/Employee";
 import organizationService from "../services/organizationService";
 import AddRoleForm from "./AddRoleForm";
 
 export default function Organization() {
+  const { isSignedIn, getToken } = useAuth();
   const [members, setMembers] = useState<Role[]>([]);
   const [roleError, setRoleError] = useState<string[]>([]);
 
@@ -16,10 +18,12 @@ export default function Organization() {
     lastName: string,
     role: string
   ) {
+    const token = await getToken();
     const result = await organizationService.createMember(
       firstName,
       lastName,
-      role
+      role,
+      token ?? ""
     );
 
     if (result.success && result.members) {
@@ -40,7 +44,13 @@ export default function Organization() {
         </section>
       ))}
 
-      <AddRoleForm onAddMember={handleAddMember} roleMessages={roleError} />
+      {isSignedIn ? (
+        <AddRoleForm onAddMember={handleAddMember} roleMessages={roleError} />
+      ) : (
+        <div>
+          <p>Please <a href="/sign-in">log in</a> to add roles.</p>
+        </div>
+      )}
     </main>
   );
 }
