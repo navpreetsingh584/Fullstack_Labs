@@ -1,6 +1,6 @@
 import type { Department } from "../interfaces/Employee";
 
-const BASE_URL = "http://localhost:4000";
+const BASE_URL = "https://fullstack-labs.onrender.com";
 
 const employeeRepo = {
   async getDepartments(): Promise<Department[]> {

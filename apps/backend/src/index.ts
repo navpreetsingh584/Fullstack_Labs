@@ -8,13 +8,16 @@ const app = express();
 const PORT = 4000;
 
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://fullstack-labs-one.vercel.app",
+  ],
 }));
 
 app.use(express.json());
 app.use(clerkMiddleware());
 
-// All employee routes — GET is public, POST is protected inside the router
 app.use("/employees", employeeRoutes);
 app.use("/organization", organizationRoutes);
 

@@ -1,6 +1,6 @@
 import type { Role } from "../interfaces/Employee";
 
-const BASE_URL = "http://localhost:4000";
+const BASE_URL = "https://fullstack-labs.onrender.com";
 
 const organizationRepo = {
   async getMembers(): Promise<Role[]> {
