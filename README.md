@@ -1,73 +1,25 @@
-# React + TypeScript + Vite
+# Pixell River Financial — Fullstack Labs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Lab 5.2 — TanStack Query Integration
 
-Currently, two official plugins are available:
+### 1. What change was made
+The application previously used React's `useEffect` hook combined with raw `fetch` calls to load and update data from the backend. 
+This approach required manually managing loading states, error handling, and data synchronization after mutations. TanStack Query also known as React Query was integrated
+ to replace this pattern. The `useQuery` hook now handles all GET requests for departments and organization members, while `useMutation` handles POST requests for creating 
+ new employees and roles.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 2. What tools were used
+TanStack Query v4 (`@tanstack/react-query`) was installed in the frontend application. A QueryClient was created and provided to the entire app through
+ QueryClientProvider in main.tsx. The useQuery hook was used in both Main.tsx and Organization.tsx to fetch data, and the useMutation hook was used to handle form submissions.
+  The useQueryClient hook was used to invalidate cached queries after a successful mutation, which triggers an automatic refetch.
 
-## React Compiler
+### 3. How this affects the user experience
+Users now see a "Loading..." message while data is being fetched instead of an empty page. After adding a new employee or role, the list updates automatically 
+without requiring a manual page refresh, because TanStack Query invalidates the cache and refetches the data in the background. If the user navigates away and comes 
+back, the cached data is shown immediately while a background refetch happens silently, making the app feel faster and more responsive.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 4. How this affects understanding of the app
+Integrating TanStack Query changed how the app is conceptualized at a fundamental level. Previously, data fetching was treated as a side effect managed inside components.
+ Now it is treated as server state — data that lives on the server and needs to be synchronized with the client. This distinction is important in production applications 
+ because server state can change at any time. TanStack Query provides a structured way to manage this synchronization, making the codebase easier to maintain and reason about 
+ as the application grows.
