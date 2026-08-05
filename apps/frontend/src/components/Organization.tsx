@@ -48,3 +48,28 @@ export default function Organization() {
     lastName: string,
     role: string
   ) {
+    mutation.mutate({ firstName, lastName, role });
+  }
+
+  if (isLoading) return <p>Loading...</p>;
+
+  return (
+    <main>
+      <h2>Organization</h2>
+      {members.map((member: Role) => (
+        <section key={`${member.firstName}-${member.lastName}`} className="org-row">
+          <span>{member.firstName} {member.lastName}</span>
+          <span>{member.role}</span>
+        </section>
+      ))}
+
+      {isSignedIn ? (
+        <AddRoleForm onAddMember={handleAddMember} roleMessages={roleError} />
+      ) : (
+        <div>
+          <p>Please <a href="/sign-in">log in</a> to add roles.</p>
+        </div>
+      )}
+    </main>
+  );
+}
